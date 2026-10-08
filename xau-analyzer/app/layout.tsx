@@ -1,7 +1,9 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { THEME_INIT_SCRIPT } from "@/lib/theme";
 import { NotificationProvider } from "./Notifications";
 import "./globals.css";
+
+export const viewport: Viewport = { width: "device-width", initialScale: 1, viewportFit: "cover" };
 
 export const metadata: Metadata = {
   title: "Signal Analyzer — BTC & Gold (PAXG)",

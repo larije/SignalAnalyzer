@@ -5,6 +5,7 @@ import { SignalHistoryStore } from "@/lib/signalHistoryCore";
 import { runBrowserBacktest } from "@/lib/browserBacktest";
 import { useBrowserAnalysis } from "./useBrowserAnalysis";
 import LocalDataPanel from "./LocalDataPanel";
+import MobileNavigation from "./MobileNavigation";
 import { loadAssetCandles, selectedChart, type AssetChartState } from "@/lib/assetChart";
 import { tint } from "@/lib/theme";
 import ThemeToggle from "./ThemeToggle";
@@ -189,7 +190,7 @@ function Card({ children, style, accent, className = "" }: { children: React.Rea
       background: C.s1,
       border: `1px solid ${C.border}`,
       borderRadius: 16,
-      padding: "clamp(16px, 2vw, 24px)",
+      padding: "var(--panel-padding, clamp(16px, 2vw, 24px))",
       boxShadow: "var(--shadow-card)",
       ...(accent ? { borderTop: `2px solid ${accent}` } : {}),
       ...style,
@@ -249,10 +250,10 @@ function EmptyState({ title, detail }: { title: string; detail: string }) {
   </div>;
 }
 
-function OverviewStat({ label, value, detail, icon: Icon, color }: {
-  label: string; value: string; detail: string; icon: React.ElementType; color?: string;
+function OverviewStat({ label, value, detail, icon: Icon, color, className = "" }: {
+  label: string; value: string; detail: string; icon: React.ElementType; color?: string; className?: string;
 }) {
-  return <div className="overview-stat">
+  return <div className={`overview-stat ${className}`}>
     <div className="stat-topline"><span className="stat-label">{label}</span><span className="stat-icon"><Icon size={19} strokeWidth={1.8} aria-hidden="true" /></span></div>
     <div className="stat-value" style={color ? { color } : undefined}>{value}</div>
     <div className="stat-detail">{detail}</div>
@@ -369,7 +370,7 @@ function MarketStructurePanel({ ms }: { ms: MarketStructure }) {
         {ms.choch && <Pill label="CHOCH" color={C.violet} bg={`${tint(C.violet, "18")}`} />}
       </div>
       <MeterBar label="Strength" value={ms.strength} color={typeColor} />
-      <div style={{ display: "flex", justifyContent: "space-between", marginTop: 12, fontSize: 13, fontFamily: F.sans, ...F.num }}>
+      <div className="mobile-wrap-row" style={{ display: "flex", justifyContent: "space-between", marginTop: 12, fontSize: 13, fontFamily: F.sans, ...F.num }}>
         <span style={{ color: C.red, fontWeight: 500 }}>S ${fmt(ms.swingLow)}</span>
         <span style={{ color: C.green, fontWeight: 500 }}>R ${fmt(ms.swingHigh)}</span>
       </div>
@@ -696,9 +697,9 @@ function MarketRegimePanel({ regime }: { regime: MarketRegimeData }) {
   return (
     <div style={{ background: C.s2, border: `1px solid ${tint(color, "22")}`, borderLeft: `3px solid ${color}`, borderRadius: 12, padding: "14px 16px", boxShadow: `0 0 20px ${tint(color, "08")}` }}>
       <div style={{ fontSize: 11, color: C.dim, fontFamily: F.sans, letterSpacing: "0.18em", textTransform: "uppercase", marginBottom: 10 }}>Market Regime</div>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}>
+      <div className="mobile-wrap-row" style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}>
         <div style={{ fontSize: 14, fontWeight: 900, color, fontFamily: F.sans }}>{icon} {regime.regime}</div>
-        <div style={{ display: "flex", gap: 6 }}>
+        <div className="mobile-wrap-row" style={{ display: "flex", gap: 6 }}>
           {regime.direction !== 'NEUTRAL' && <Pill label={regime.direction} color={dirColor} bg={`${tint(dirColor, "14")}`} />}
           <Pill label={`SCORE ${multLabel}`} color={multColor} bg={`${tint(multColor, "14")}`} />
         </div>
@@ -721,7 +722,7 @@ function SessionPanel({ session }: { session: SessionData }) {
       <div style={{ fontSize: 12, fontWeight: 800, color: impactColor, fontFamily: F.sans, marginBottom: 8 }}>
         {sessionIcons[session.currentSession] ?? ''} {session.currentSession.replace(/_/g, '/')}
       </div>
-      <div style={{ display: "flex", gap: 6, marginBottom: 8 }}>
+      <div className="mobile-wrap-row" style={{ display: "flex", gap: 6, marginBottom: 8 }}>
         <Pill label={`${session.impact} IMPACT`} color={impactColor} bg={`${tint(impactColor, "14")}`} />
         {session.isHighVolatility && <Pill label="HIGH VOL" color={C.red} bg={`${tint(C.red, "14")}`} />}
       </div>
@@ -761,12 +762,12 @@ function PatternPanel({ pattern }: { pattern: PatternData }) {
           <div style={{ fontSize: 12, fontWeight: 900, color: dirColor, fontFamily: F.sans, marginBottom: 8 }}>
             {pattern.pattern.replace(/_/g, ' ')}
           </div>
-          <div style={{ display: "flex", gap: 6, marginBottom: 8 }}>
+          <div className="mobile-wrap-row" style={{ display: "flex", gap: 6, marginBottom: 8 }}>
             <Pill label={pattern.direction} color={dirColor} bg={`${tint(dirColor, "14")}`} />
             <Pill label={`${pattern.confidence}% conf`} color={pattern.confidence >= 75 ? C.green : C.amber} bg={C.s3} />
           </div>
           <div style={{ fontSize: 13, color: C.silver, fontFamily: F.sans, lineHeight: 1.6, marginBottom: 8 }}>{pattern.description}</div>
-          <div style={{ display: "flex", gap: 16, fontSize: 13, fontFamily: F.sans }}>
+          <div className="mobile-wrap-row" style={{ display: "flex", gap: 16, fontSize: 13, fontFamily: F.sans }}>
             <span style={{ color: dirColor }}>Target ${fmt(pattern.targetPrice)}</span>
             <span style={{ color: C.red }}>Invalid ${fmt(pattern.invalidationPrice)}</span>
           </div>
@@ -804,7 +805,7 @@ function VolumeProfilePanel({ vp, price }: { vp: VolumeProfileData; price: numbe
   return (
     <div style={{ background: C.s2, borderRadius: 12, padding: "14px 16px", border: `1px solid ${C.border}` }}>
       <div style={{ fontSize: 11, color: C.dim, fontFamily: F.sans, letterSpacing: "0.18em", textTransform: "uppercase", marginBottom: 10 }}>Volume Profile</div>
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 8, marginBottom: 10 }}>
+      <div className="volume-profile-values" style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 8, marginBottom: 10 }}>
         {[{ l: "POC", v: `$${fmt(vp.poc)}`, c: pocColor }, { l: "VAH", v: `$${fmt(vp.vah)}`, c: C.green }, { l: "VAL", v: `$${fmt(vp.val)}`, c: C.red }].map(({ l, v, c }) => (
           <div key={l} style={{ background: C.s3, borderRadius: 8, padding: "8px 6px", textAlign: "center" }}>
             <div style={{ fontSize: 11, color: C.dim, fontFamily: F.sans, marginBottom: 3 }}>{l}</div>
@@ -854,9 +855,9 @@ function MLProbabilityPanel({ ml }: { ml: MLProbabilityData }) {
         <div style={{ color: C.dim, fontSize: 13, fontFamily: F.sans, lineHeight: 1.7 }}>Not enough resolved signals like this yet.<br/>Collecting data — {ml.sampleSize} of {MIN_SAMPLES} so far.</div>
       ) : (
         <>
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}>
+          <div className="mobile-wrap-row" style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}>
             <div style={{ fontSize: 22, fontWeight: 900, color: barColor, fontFamily: F.sans }}>{winPct}%</div>
-            <div style={{ display: "flex", gap: 5 }}>
+            <div className="mobile-wrap-row" style={{ display: "flex", gap: 5 }}>
               <Pill label={`${ml.sampleSize} trades`} color={C.silver} bg={C.s3} />
               <Pill label={`${ml.confidence}% conf`} color={ml.confidence >= 60 ? C.green : C.amber} bg={ml.confidence >= 60 ? `${tint(C.green, "14")}` : `${tint(C.amber, "14")}`} />
             </div>
@@ -893,7 +894,7 @@ function AdaptiveWeightsPanel({ aw }: { aw: AdaptiveWeightsData }) {
           <div style={{ fontSize: 13, color: C.silver, fontFamily: F.sans, marginBottom: 8 }}>
             Optimized from {aw.sampleSize} resolved trades
           </div>
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "4px 12px" }}>
+          <div className="adaptive-weights-grid" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "4px 12px" }}>
             {KEYS.map(k => {
               const w = aw[k] as number;
               const pct = Math.round((w - 1) * 100);
@@ -1024,7 +1025,7 @@ function TradeCallCard({ state, asset, color, stats }:
 
       {late?.lateNote && <div className="feedback-banner"><AlertTriangle size={15} aria-hidden="true" /><span>{late.lateNote}</span></div>}
       {action === "WAIT" ? (
-        <div style={{ fontFamily: F.sans, fontSize: 13, color: C.silver, marginBottom: 12 }}>
+        <div className="signal-summary" style={{ fontFamily: F.sans, fontSize: 13, color: C.silver, marginBottom: 12 }}>
           No clean trade right now — the signals don&rsquo;t line up. Wait for a clearer setup.
         </div>
       ) : (
@@ -1039,7 +1040,7 @@ function TradeCallCard({ state, asset, color, stats }:
 
       {/* Why */}
       {reasons.length > 0 && (
-        <div style={{ marginBottom: 12 }}>
+        <div className="signal-reasons" style={{ marginBottom: 12 }}>
           <div style={{ fontSize: 10, color: C.dim, fontFamily: F.sans, letterSpacing: "0.1em", textTransform: "uppercase", marginBottom: 6 }}>Why</div>
           <ul style={{ margin: 0, paddingLeft: 18, color: C.silver, fontSize: 12.5, fontFamily: F.sans, lineHeight: 1.7 }}>
             {reasons.map((r, i) => <li key={i}>{r}</li>)}
@@ -1199,6 +1200,8 @@ export default function Page() {
       <header className="app-topbar">
         <div className="topbar-inner">
           <div className="header-breadcrumb">
+            <MobileNavigation sections={sections} activeId={activeTab} onNavigate={id => { setActiveTab(id as typeof activeTab); window.scrollTo({ top: 0, behavior: "instant" }); }} />
+            <span className="mobile-header-title"><span>Signal Analyzer</span><strong>{section.label}</strong></span>
             <button type="button" className="icon-button desktop-only" onClick={() => setSidebarCollapsed(value => !value)} aria-label={sidebarCollapsed ? "Expand sidebar" : "Collapse sidebar"} aria-expanded={!sidebarCollapsed} aria-controls="sidebar-navigation" title={sidebarCollapsed ? "Expand sidebar" : "Collapse sidebar"}>
               {sidebarCollapsed ? <PanelLeftOpen size={19} aria-hidden="true" /> : <PanelLeftClose size={19} aria-hidden="true" />}
             </button>
@@ -1207,7 +1210,7 @@ export default function Page() {
           <div className="topbar-meta">
             <ThemeToggle />
             <span className="data-source">Market data <strong>Binance</strong></span>
-            <div className={`connection-status ${wsOk ? "is-live" : "is-connecting"}`} role="status"><Wifi size={14} aria-hidden="true" /><span>{wsOk ? "15s updates" : local.error ? "Updates paused" : "Connecting…"}</span></div>
+            <div className={`connection-status ${wsOk ? "is-live" : "is-connecting"}`} role="status" title={wsOk ? "Market data updates every 15 seconds" : local.error ? "Market updates paused" : "Connecting to market data"}><Wifi size={14} aria-hidden="true" /><span className="connection-full-label">{wsOk ? "15s updates" : local.error ? "Updates paused" : "Connecting…"}</span><span className="connection-mobile-label">{wsOk ? "Live" : local.error ? "Paused" : "Syncing"}</span></div>
           </div>
         </div>
       </header>
@@ -1236,12 +1239,12 @@ export default function Page() {
         <LocalDataPanel ready={local.ready} historyLoaded={local.historyLoaded} persistent={local.persistent} count={local.data.history.entries.length} exportBackup={local.exportBackup} restoreBackup={local.restoreBackup} />
         <section key={activeTab} id="analysis-view" aria-labelledby="workspace-title" className="tab-panel">
         {activeTab === "market" && (
-          <div key={activeAsset} data-selected-asset={activeAsset}>
+          <div key={activeAsset} className="market-dashboard" data-selected-asset={activeAsset}>
             <div className="overview-stats" aria-label={`${assetName} summary`}>
-              <OverviewStat label={`${assetName} price`} value={selectedTicker ? `$${fmt(selectedTicker.price)}` : "—"} detail={activeState.stale ? "Last known price · data is stale" : assetPair} icon={BarChart2} />
+              <OverviewStat className="overview-stat--price" label={`${assetName} price`} value={selectedTicker ? `$${fmt(selectedTicker.price)}` : "—"} detail={activeState.stale ? "Last known price · data is stale" : assetPair} icon={BarChart2} />
               <OverviewStat label="24h change" value={changeValue} detail={selectedTicker ? `${selectedTicker.change >= 0 ? "+" : "−"}$${fmt(Math.abs(selectedTicker.change))} over 24 hours` : "Waiting for live market data"} icon={selectedTicker && selectedTicker.changePercent < 0 ? TrendingDown : TrendingUp} color={selectedTicker ? selectedTicker.changePercent >= 0 ? C.green : C.red : C.dim} />
               <OverviewStat label="Current signal" value={selectedVerdict} detail={activeState.stale ? "Market data needs to recover" : !activeState.enhanced ? "Waiting for a confirmed signal" : "Latest closed candle"} icon={Activity} color={verdictColor} />
-              <OverviewStat label="Resolved signals" value={perfStats ? perfStats.completedSignals.toLocaleString() : "—"} detail={perfLoading ? `Loading ${assetName} history…` : `${assetName} outcomes in this browser`} icon={Trophy} />
+              <OverviewStat className="overview-stat--resolved" label="Resolved signals" value={perfStats ? perfStats.completedSignals.toLocaleString() : "—"} detail={perfLoading ? `Loading ${assetName} history…` : `${assetName} outcomes in this browser`} icon={Trophy} />
             </div>
 
             <div className="dashboard-grid">
@@ -1270,7 +1273,7 @@ export default function Page() {
             <Card className="dashboard-technical">
               <div className="section-heading">
                 <div><h2 className="section-title">Technical snapshot</h2><p className="section-kicker">Key indicators for {assetName === "Gold" ? "gold (PAXG)" : "Bitcoin"}.</p></div>
-                <button type="button" className="app-control" onClick={() => { setActiveTab("signals"); document.getElementById("analysis-nav-signals")?.focus(); }}>View signal analysis <ArrowRight size={13} aria-hidden="true" /></button>
+                <button type="button" className="app-control" onClick={() => { setActiveTab("signals"); const nav = document.getElementById("analysis-nav-signals"); (nav?.getClientRects().length ? nav : document.getElementById("workspace"))?.focus(); }}>View signal analysis <ArrowRight size={13} aria-hidden="true" /></button>
               </div>
               {activeState.indicators ? <IndicatorRow ind={activeState.indicators} /> : <p className="section-kicker" role="status">Waiting for {assetName} indicators. They appear as market data arrives.</p>}
               {activeState.signal && !activeState.stale && <details className="signal-details">

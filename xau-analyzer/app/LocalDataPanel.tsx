@@ -1,7 +1,7 @@
 "use client";
 
-import { useRef, useState, type ChangeEvent } from "react";
-import { Download, Upload, HardDrive } from "lucide-react";
+import { useId, useRef, useState, type ChangeEvent } from "react";
+import { ChevronDown, Download, Upload, HardDrive } from "lucide-react";
 import { parseBackup, type BrowserData } from "@/lib/browserStorage";
 import { useNotification } from "./Notifications";
 
@@ -18,6 +18,10 @@ export default function LocalDataPanel({ ready, historyLoaded, persistent, count
   const input = useRef<HTMLInputElement>(null);
   const [pending, setPending] = useState<{ name: string; data: BrowserData } | null>(null);
   const [busy, setBusy] = useState(false);
+  const [expanded, setExpanded] = useState(false);
+  const bodyId = useId();
+  const isExpanded = expanded || pending !== null;
+  const status = !historyLoaded ? "Local history is not loaded" : persistent ? "Saved in this browser" : "Temporary history";
   const notify = useNotification();
 
   async function download() {
@@ -47,6 +51,7 @@ export default function LocalDataPanel({ ready, historyLoaded, persistent, count
       if (file.size > 5 * 1024 * 1024) throw new Error("Choose a backup smaller than 5 MB.");
       const data = parseBackup(await file.text());
       setPending({ name: file.name, data });
+      setExpanded(true);
     } catch (error) {
       setPending(null);
       notify({ title: "Backup could not be read", description: error instanceof Error ? error.message : "Choose a SignalAnalyzer JSON backup.", kind: "error" });
@@ -65,10 +70,24 @@ export default function LocalDataPanel({ ready, historyLoaded, persistent, count
     } finally { setBusy(false); }
   }
 
-  return <section className="local-data-panel" aria-label="Local history and backups">
+  return <section className="local-data-panel" aria-label="Local history and backups" data-expanded={isExpanded} data-status={!historyLoaded ? "unloaded" : persistent ? "persistent" : "temporary"}>
+    <button
+      type="button"
+      className="local-data-toggle"
+      aria-expanded={isExpanded}
+      aria-controls={bodyId}
+      aria-disabled={pending !== null}
+      aria-label={`${isExpanded ? "Hide" : "Show"} history and backup controls. ${status}`}
+      onClick={() => { if (!pending) setExpanded(value => !value); }}
+    >
+      <HardDrive size={19} aria-hidden="true" />
+      <span className="local-data-toggle-title">{status}</span>
+      <ChevronDown size={18} className="local-data-toggle-chevron" aria-hidden="true" />
+    </button>
+    <div id={bodyId} className="local-data-body">
     <div className="local-data-copy">
       <HardDrive size={19} aria-hidden="true" />
-      <div><h2>{!historyLoaded ? "Local history is not loaded" : persistent ? "Saved in this browser" : "Temporary history"}</h2>
+      <div><h2>{status}</h2>
         <p>{historyLoaded ? `${count} saved signals. ` : ""}History and learning stay on this device. Tracking runs while the app is open.</p>
         <p className="local-data-note">Clearing site data removes history. Use a backup to move it to another browser or website address.</p>
       </div>
@@ -84,5 +103,6 @@ export default function LocalDataPanel({ ready, historyLoaded, persistent, count
       <div className="local-data-actions"><button type="button" className="app-control" onClick={() => setPending(null)} disabled={busy}>Cancel</button>
         <button type="button" className="app-control backup-restore" onClick={restore} disabled={busy}>{busy ? "Restoring…" : "Replace local history"}</button></div>
     </div>}
+    </div>
   </section>;
 }
