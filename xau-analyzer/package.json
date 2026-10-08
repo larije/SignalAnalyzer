@@ -1,0 +1,30 @@
+{
+  "name": "xau-analyzer",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "export:legacy": "node scripts/export-local-history.mjs"
+  },
+  "dependencies": {
+    "lucide-react": "^1.21.0",
+    "next": "^15.5.25",
+    "react": "^18",
+    "react-dom": "^18",
+    "recharts": "^2.12.7",
+    "ws": "^8.21.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20",
+    "@types/react": "^18",
+    "@types/react-dom": "^18",
+    "@types/ws": "^8.18.1",
+    "fake-indexeddb": "^6.2.5",
+    "typescript": "^5",
+    "vitest": "^2.1.0"
+  }
+}
